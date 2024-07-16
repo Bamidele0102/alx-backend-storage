@@ -1,34 +1,46 @@
-#!/usr/bin/env python3
-""" Log stats - new version """
 from pymongo import MongoClient
 
+#!/usr/bin/env python3
+""" Log stats - new version """
 
-client = MongoClient()
-db = client.logs
-collection = db.nginx
 
 def log_stats():
-    """
-    Provides some stats about Nginx logs stored in MongoDB:
-    """
-    num_logs = collection.count_documents({})
-    print(f"{num_logs} logs")
+    """ provides some stats about Nginx logs stored in MongoDB:"""
+    client = MongoClient()
+    collection = client.logs.nginx
+
+    num_of_docs = collection.count_documents({})
+    print(f"{num_of_docs} logs")
     print("Methods:")
-    methods = ["GET", "POST", "PUT", "PATCH", "DELETE"]
-    for method in methods:
-        count = collection.count_documents({"method": method})
-        print(f"\tmethod {method}: {count}")
-    status_check = collection.count_documents({"method": "GET", "path": "/status"})
-    print(f"{status_check} status check")
+    methods_list = ["GET", "POST", "PUT", "PATCH", "DELETE"]
+    for method in methods_list:
+        method_count = collection.count_documents({"method": method})
+        print(f"\tmethod {method}: {method_count}")
+    status = collection.count_documents({"method": "GET", "path": "/status"})
+    print(f"{status} status check")
 
     print("IPs:")
-    top_ips = collection.aggregate([
-        {"$group": {"_id": "$ip", "count": {"$sum": 1}}},
+
+    top_IPs = collection.aggregate([
+        {"$group":
+         {
+             "_id": "$ip",
+             "count": {"$sum": 1}
+         }
+         },
         {"$sort": {"count": -1}},
-        {"$limit": 10}
+        {"$limit": 10},
+        {"$project": {
+            "_id": 0,
+            "ip": "$_id",
+            "count": 1
+        }}
     ])
-    for ip in top_ips:
-        print(f"{ip['_id']}: {ip['count']}")
+    for top_ip in top_IPs:
+        count = top_ip.get("count")
+        ip_address = top_ip.get("ip")
+        print(f"\t{ip_address}: {count}")
+
 
 if __name__ == "__main__":
     log_stats()
