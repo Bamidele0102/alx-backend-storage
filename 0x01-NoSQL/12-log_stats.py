@@ -4,22 +4,22 @@
 """
 from pymongo import MongoClient
 
-client = MongoClient()
-db = client.logs
-collection = db.nginx
 
 def log_stats():
-    """
-    Provides some stats about Nginx logs stored in MongoDB
-    """
-    num_logs = collection.count_documents({})
-    print(f"{num_logs} logs")
-    print("Methods:")
+    """Provides some stats about Nginx logs stored in MongoDB"""
+    client = MongoClient()
+    collection = client.logs.nginx
+
+    doc_count = collection.count_documents({})
+    print(f"{doc_count} logs")
+
     methods = ["GET", "POST", "PUT", "PATCH", "DELETE"]
+    print("Methods:")
     for method in methods:
-        count = collection.count_documents({"method": method})
-        print(f"\tmethod {method}: {count}")
-    status_check = collection.count_documents({"method": "GET", "path": "/status"})
+        method_count = collection.count_documents({"method": method})
+        print(f"\tmethod {method}: {method_count}")
+    status_check = collection.count_documents({"method": "GET",
+                                                "path": "/status"})
     print(f"{status_check} status check")
 
 if __name__ == "__main__":
