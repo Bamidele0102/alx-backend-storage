@@ -1,9 +1,11 @@
+#!/usr/bin/env python3
+"""
+This script demonstrates how to cache the results of a function
+and track the number of times a URL is accessed.
+"""
 import requests
 import time
 from functools import lru_cache
-
-#!/usr/bin/env python3
-
 
 
 # Dictionary to track URL accesses
@@ -11,8 +13,12 @@ url_access_count = {}
 
 
 # Decorator to cache results and track URL accesses
-@lru_cache(maxsize=100)
 def cache_and_track(func):
+    """
+    Decorator to cache the results of a function and
+    track the number of times a URL is accessed.
+    """
+    @lru_cache(maxsize=100)
     def wrapper(url):
         # Make the request to the URL and fetch the content
         response = requests.get(url)
@@ -31,6 +37,9 @@ def cache_and_track(func):
 # Function to get the page content (decorated with cache_and_track)
 @cache_and_track
 def get_page(url: str) -> str:
+    """
+    Function to get the page content.
+    """
     return url
 
 
