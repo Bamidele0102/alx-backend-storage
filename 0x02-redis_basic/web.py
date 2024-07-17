@@ -21,18 +21,18 @@ def data_cacher(method: Callable) -> Callable:
         '''
         # Increment the access count each time the function is called
         redis_store.incr(f'count:{url}')
-        
+
         # Check if the result is cached
         cached_result = redis_store.get(f'result:{url}')
         if cached_result:
             return cached_result.decode('utf-8')
-        
+
         # If not cached, fetch the result
         result = method(url)
-        
+
         # Cache the result with an expiration time of 10 seconds
         redis_store.setex(f'result:{url}', 10, result)
-        
+
         return result
     return invoker
 
