@@ -1,8 +1,9 @@
-#!/usr/bin/env python3
-
 import requests
 import time
 from functools import lru_cache
+
+#!/usr/bin/env python3
+
 
 
 # Dictionary to track URL accesses
@@ -10,8 +11,8 @@ url_access_count = {}
 
 
 # Decorator to cache results and track URL accesses
+@lru_cache(maxsize=100)
 def cache_and_track(func):
-    @lru_cache(maxsize=100)
     def wrapper(url):
         # Make the request to the URL and fetch the content
         response = requests.get(url)
