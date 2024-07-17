@@ -22,6 +22,9 @@ def cache_with_expiry(expire_seconds: int = 10):
     """
 
     def decorator(func):
+        """
+        Decorator function that caches the result of the 
+        decorated function"""
         @wraps(func)
         def wrapper(url):
             cache_key = f"count:{url}"
