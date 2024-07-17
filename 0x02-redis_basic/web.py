@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+"""
+A simple web scraper that caches the HTML content of a webpage using Redis.
+"""
 import requests
 import redis
 from functools import wraps
@@ -23,7 +26,7 @@ def cache_with_expiry(expire_seconds: int = 10):
 
     def decorator(func):
         """
-        Decorator function that caches the result of the 
+        Decorator function that caches the result of the
         decorated function"""
         @wraps(func)
         def wrapper(url):
@@ -38,7 +41,7 @@ def cache_with_expiry(expire_seconds: int = 10):
 
             # Fetch content if not cached
             content = func(url)
-            redis_client.set(url, content, ex=expire_seconds)
+            redis_client.set(cache_key, content, ex=expire_seconds)
             redis_client.incr(cache_key)
 
             return content
