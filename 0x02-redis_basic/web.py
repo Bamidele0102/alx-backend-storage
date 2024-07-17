@@ -1,34 +1,42 @@
 #!/usr/bin/env python3
-"""
-Implements an expiring web cache and tracker
-"""
-from typing import Callable
-from functools import wraps
-import redis
+
 import requests
-redis_client = redis.Redis()
+import time
+from functools import lru_cache
 
 
-def url_count(method: Callable) -> Callable:
-    """counts how many times an url is accessed"""
-    @wraps(method)
-    def wrapper(*args, **kwargs):
-        url = args[0]
-        redis_client.incr(f"count:{url}")
-        cached = redis_client.get(f'{url}')
-        if cached:
-            return cached.decode('utf-8')
-        redis_client.setex(f'{url}, 10, {method(url)}')
-        return method(*args, **kwargs)
+# Dictionary to track URL accesses
+url_access_count = {}
+
+
+# Decorator to cache results and track URL accesses
+def cache_and_track(func):
+    @lru_cache(maxsize=100)
+    def wrapper(url):
+        # Make the request to the URL and fetch the content
+        response = requests.get(url)
+        page_content = response.text
+
+        # Update the URL access count
+        url_access_count[url] = url_access_count.get(url, 0) + 1
+
+        time.sleep(10)  # Simulate slow response
+
+        return page_content
+
     return wrapper
 
 
-@url_count
+# Function to get the page content (decorated with cache_and_track)
+@cache_and_track
 def get_page(url: str) -> str:
-    """get a page and cache value"""
-    response = requests.get(url)
-    return response.text
+    return url
 
 
+# Example usage
 if __name__ == "__main__":
-    get_page('http://slowwly.robertomurray.co.uk')
+    url_ = "http://slowwly.robertomurray.co.uk/delay/1000/url/"
+    url = f"{url_}http://www.google.com"
+    print(get_page(url))
+    print(get_page(url))
+    print(f"Access count for {url}: {url_access_count[url]}")
