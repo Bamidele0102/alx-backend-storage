@@ -68,7 +68,7 @@ def get_page(url: str) -> str:
 
 
 if __name__ == "__main__":
-    url = "http://slowwly.robertomurray.co.uk/delay/3000/url/wikipedia/en.html"
+    url = "http://slowwly.robertomurray.co.uk"
 
     # First request (no cache hit)
     content = get_page(url)
